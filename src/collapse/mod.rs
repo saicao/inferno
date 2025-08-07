@@ -66,7 +66,12 @@ pub mod vsprof;
 ///
 ///   [crate-level documentation]: ../../index.html
 pub mod xctrace;
-
+/// Stack collapsing for the output of the [xctrace](https://developer.apple.com/xcode/features/) counter profile.
+///
+/// See the [crate-level documentation] for details.
+///
+///   [crate-level documentation]: ../../index.html 
+pub mod xctrace_counter_profile;
 /// Stack collapsing for the output of the [GHC's built-in profiler](https://downloads.haskell.org/ghc/latest/docs/users_guide/profiling.html).
 ///
 /// See the [crate-level documentation] for details.
