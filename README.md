@@ -87,10 +87,18 @@ these tools on Brendan Gregg's [CPU Flame Graphs page].
   [CPU Flame Graphs page]: http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html#Instructions
 
 On Linux, you may need to tweak a kernel config such as
+
 ```console
-$ echo 0 | sudo tee /proc/sys/kernel/perf_event_paranoid
+echo 0 | sudo tee /proc/sys/kernel/perf_event_paranoid
 ```
+
 to get profiling [to work](https://unix.stackexchange.com/a/14256).
+
+### Obtaining Flamegraph from xctrace counter-profile
+
+```console
+xctrace export --input test.trace --xpath '/trace-toc/run[@number="1"]/data/table[@schema="counters-profile"]' | ./inferno-collapse-xctrace-counter | ./inferno-flamegraph > out.html 
+```console
 
 ## Performance
 
