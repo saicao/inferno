@@ -328,7 +328,7 @@ impl Collapse for FolderCounter {
         W: std::io::Write,
     {
         let mut reader = Reader::from_reader(reader);
-        self.collapse_inner(&mut reader, writer)
+        self.collapse_inner(&mut reader, writer, None)
     }
 
     fn is_applicable(&mut self, input: &str) -> Option<bool> {
@@ -361,7 +361,12 @@ impl Collapse for FolderCounter {
 }
 
 impl FolderCounter {
-    fn collapse_inner<R, W>(&mut self, reader: &mut Reader<R>, writer: W) -> io::Result<()>
+    fn collapse_inner<R, W>(
+        &mut self,
+        reader: &mut Reader<R>,
+        writer: W,
+        counter_idx: Option<u64>,
+    ) -> io::Result<()>
     where
         R: std::io::BufRead,
         W: std::io::Write,
@@ -594,12 +599,19 @@ impl FolderCounter {
             let frame = backtrace_occurrences
                 .entry(backtrace)
                 .or_insert_with(|| BacktraceOccurrences { num: 0, backtrace });
-            let count = match pmc {
-                Some(pmc) => {
-                    let counter = self.pmc_events.get(&pmc).unwrap();
-                    counter[0] as usize
+            let count = match pmc.and_then(|id| self.pmc_events.get(&id)) {
+                Some(values) => {
+                    let idx = counter_idx.unwrap_or(0) as usize;
+                    if idx >= values.len() {
+                        return invalid_data_error!(
+                            "PMC index {} out of range, max index is {}",
+                            idx,
+                            values.len().saturating_sub(1)
+                        );
+                    }
+                    values[idx] as usize
                 }
-                None => 0,
+                None => 1, // If no pmc-events, count as 1 occurrence.
             };
             frame.num += count;
         }
